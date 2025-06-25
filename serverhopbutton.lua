@@ -43,7 +43,7 @@ local function serverHop()
         print("Подожди...")
         return
     end
-    
+
     isBusy = true
     Status.Text = "Searching servers..."
 
@@ -54,5 +54,39 @@ local function serverHop()
         isBusy = false
         return
     end
-    
-    local success
+
+    local success, response = pcall(function()
+        return req({
+            Url = "https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
+        })
+    end)
+
+    if not success or not response then
+        Status.Text = "Request failed"
+        isBusy = false
+        return
+    end
+
+    local body = HttpService:JSONDecode(response.Body)
+    local servers = {}
+
+    for _, v in pairs(body.data) do
+        if v.playing < v.maxPlayers and v.id ~= game.JobId then
+            table.insert(servers, v.id)
+        end
+    end
+
+    if #servers > 0 then
+        local serverId = servers[math.random(#servers)]
+        Status.Text = "Teleporting..."
+        TeleportService:TeleportToPlaceInstance(PlaceId, serverId, game.Players.LocalPlayer)
+    else
+        Status.Text = "No servers found"
+    end
+
+    wait(10)
+    Status.Text = "Ready"
+    isBusy = false
+end
+
+Button.MouseButton1Click:Connect(serverHop)
