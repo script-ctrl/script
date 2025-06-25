@@ -26,37 +26,40 @@ Button.Text = "Server Hop"
 Button.TextColor3 = Color3.fromRGB(255, 255, 255)
 Button.TextSize = 24
 
-local isTeleporting = false
-
 local function serverHop()
-    if isTeleporting then
-        print("Переподключение уже запущено, подожди...")
-        return
-    end
-    isTeleporting = true
+    Button.Text = "Loading..."
+    Button.Active = false
+    Button.AutoButtonColor = false
 
     local req = syn and syn.request or http_request or request
     if not req then
         print("Executor не поддерживает HTTP запросы")
-        isTeleporting = false
+        Button.Text = "Server Hop"
+        Button.Active = true
+        Button.AutoButtonColor = true
         return
     end
 
-    local ok, response = pcall(function()
+    local success, response = pcall(function()
         return req({
             Url = "https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
         })
     end)
-    if not ok or not response then
+
+    if not success or not response then
         print("Ошибка при запросе серверов")
-        isTeleporting = false
+        Button.Text = "Server Hop"
+        Button.Active = true
+        Button.AutoButtonColor = true
         return
     end
 
-    local success, body = pcall(HttpService.JSONDecode, HttpService, response.Body)
-    if not success or not body or not body.data then
+    local decodeSuccess, body = pcall(HttpService.JSONDecode, HttpService, response.Body)
+    if not decodeSuccess or not body or not body.data then
         print("Не удалось получить список серверов")
-        isTeleporting = false
+        Button.Text = "Server Hop"
+        Button.Active = true
+        Button.AutoButtonColor = true
         return
     end
 
@@ -66,15 +69,16 @@ local function serverHop()
             table.insert(servers, v.id)
         end
     end
-    
+
     if #servers > 0 then
         local serverId = servers[math.random(#servers)]
         print("Переподключение на сервер:", serverId)
         TeleportService:TeleportToPlaceInstance(PlaceId, serverId, game.Players.LocalPlayer)
-        -- isTeleporting не сбрасываем, так как мы уже переходим на другой сервер
     else
         print("Нет подходящих серверов для хопа.")
-        isTeleporting = false -- Сбрасываем флаг, чтобы можно было повторить попытку
+        Button.Text = "Server Hop"
+        Button.Active = true
+        Button.AutoButtonColor = true
     end
 end
 
