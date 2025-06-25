@@ -26,7 +26,6 @@ Button.Text = "Server Hop"
 Button.TextColor3 = Color3.fromRGB(255, 255, 255)
 Button.TextSize = 24
 
--- Чтобы не нажать кнопку несколько раз подряд
 local isTeleporting = false
 
 local function serverHop()
@@ -63,7 +62,7 @@ local function serverHop()
 
     local servers = {}
     for _, v in ipairs(body.data) do
-        if v.playing < v.maxPlayers and v.id ~= game.JobId then
+        if v.playing >= 5 and v.playing < v.maxPlayers and v.id ~= game.JobId then
             table.insert(servers, v.id)
         end
     end
