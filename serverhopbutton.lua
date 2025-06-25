@@ -71,9 +71,10 @@ local function serverHop()
         local serverId = servers[math.random(#servers)]
         print("Переподключение на сервер:", serverId)
         TeleportService:TeleportToPlaceInstance(PlaceId, serverId, game.Players.LocalPlayer)
+        -- isTeleporting не сбрасываем, так как мы уже переходим на другой сервер
     else
         print("Нет подходящих серверов для хопа.")
-        isTeleporting = false
+        isTeleporting = false -- Сбрасываем флаг, чтобы можно было повторить попытку
     end
 end
 
