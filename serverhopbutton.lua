@@ -18,7 +18,7 @@ Frame.Active = true
 Frame.Draggable = true
 
 Button.Parent = Frame
-Button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+Button.BackgroundColor3 = Color3.fromRGB(0, 191, 255) -- Голубой цвет
 Button.Position = UDim2.new(0.1, 0, 0.25, 0)
 Button.Size = UDim2.new(0.8, 0, 0.5, 0)
 Button.Font = Enum.Font.SourceSansBold
@@ -26,14 +26,23 @@ Button.Text = "Server Hop"
 Button.TextColor3 = Color3.fromRGB(255, 255, 255)
 Button.TextSize = 24
 
--- Функция server hop
+-- Чтобы не нажать кнопку несколько раз подряд
+local isTeleporting = false
+
 local function serverHop()
+    if isTeleporting then
+        print("Переподключение уже запущено, подожди...")
+        return
+    end
+    isTeleporting = true
+
     local req = syn and syn.request or http_request or request
     if not req then
         print("Executor не поддерживает HTTP запросы")
+        isTeleporting = false
         return
     end
-    
+
     local ok, response = pcall(function()
         return req({
             Url = "https://games.roblox.com/v1/games/" .. PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
@@ -41,12 +50,14 @@ local function serverHop()
     end)
     if not ok or not response then
         print("Ошибка при запросе серверов")
+        isTeleporting = false
         return
     end
 
     local success, body = pcall(HttpService.JSONDecode, HttpService, response.Body)
     if not success or not body or not body.data then
         print("Не удалось получить список серверов")
+        isTeleporting = false
         return
     end
 
@@ -63,8 +74,8 @@ local function serverHop()
         TeleportService:TeleportToPlaceInstance(PlaceId, serverId, game.Players.LocalPlayer)
     else
         print("Нет подходящих серверов для хопа.")
+        isTeleporting = false
     end
 end
 
--- Подключение к кнопке
 Button.MouseButton1Click:Connect(serverHop)
