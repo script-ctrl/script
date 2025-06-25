@@ -23,7 +23,7 @@ Button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 Button.Position = UDim2.new(0.1, 0, 0.2, 0)
 Button.Size = UDim2.new(0.8, 0, 0.4, 0)
 Button.Font = Enum.Font.SourceSansBold
-Button.Text = "Server Hop"
+Button.Text = "MAMA SABINI I KAMALA 300 METROV OT VAS"
 Button.TextColor3 = Color3.fromRGB(255, 255, 255)
 Button.TextSize = 24
 
