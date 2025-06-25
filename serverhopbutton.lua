@@ -26,6 +26,13 @@ Button.Text = "Server Hop"
 Button.TextColor3 = Color3.fromRGB(255, 255, 255)
 Button.TextSize = 24
 
+local function waitForSeconds(seconds)
+    local start = tick()
+    repeat
+        wait()
+    until tick() - start >= seconds
+end
+
 local function serverHop()
     Button.Text = "Loading..."
     Button.Active = false
@@ -73,6 +80,7 @@ local function serverHop()
     if #servers > 0 then
         local serverId = servers[math.random(#servers)]
         print("Переподключение на сервер:", serverId)
+        waitForSeconds(0.5) -- небольшая задержка перед телепортом
         TeleportService:TeleportToPlaceInstance(PlaceId, serverId, game.Players.LocalPlayer)
     else
         print("Нет подходящих серверов для хопа.")
