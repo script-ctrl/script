@@ -1,6 +1,7 @@
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
 local PlaceId = game.PlaceId
 
 -- GUI
@@ -103,14 +104,14 @@ local function serverHop()
 end
 
 local function teleportToCenter()
-    local character = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
+    local player = Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
     local hrp = character:WaitForChild("HumanoidRootPart")
 
-    -- Пример координат центра (изменить на реальные из игры)
-    local centerPos = Vector3.new(0, 10, 0)
-
-    -- Используем CFrame, чтобы точно задать позицию
-    hrp.CFrame = CFrame.new(centerPos)
+    -- Центр карты — укажи свои координаты
+    local targetCFrame = CFrame.new(0, 10, 0) -- Измени на нужные координаты
+    local tween = TweenService:Create(hrp, TweenInfo.new(0.7, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = targetCFrame})
+    tween:Play()
 end
 
 Button.MouseButton1Click:Connect(serverHop)
