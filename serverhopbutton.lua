@@ -1,5 +1,6 @@
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
 local PlaceId = game.PlaceId
 
 -- GUI
@@ -7,10 +8,12 @@ local ScreenGui = Instance.new("ScreenGui")
 local Frame = Instance.new("Frame")
 local Button = Instance.new("TextButton")
 local Status = Instance.new("TextLabel")
+local TPButton = Instance.new("TextButton")
 
 ScreenGui.Parent = game.CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
+-- Server Hop Frame
 Frame.Parent = ScreenGui
 Frame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 Frame.Position = UDim2.new(0.8, 0, 0.8, 0)
@@ -23,7 +26,7 @@ Button.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 Button.Position = UDim2.new(0.1, 0, 0.2, 0)
 Button.Size = UDim2.new(0.8, 0, 0.4, 0)
 Button.Font = Enum.Font.SourceSansBold
-Button.Text = "MAMA SABINI I KAMALA 300 METROV OT VAS"
+Button.Text = "Server Hop"
 Button.TextColor3 = Color3.fromRGB(255, 255, 255)
 Button.TextSize = 24
 
@@ -35,6 +38,16 @@ Status.Font = Enum.Font.SourceSans
 Status.Text = "Ready"
 Status.TextColor3 = Color3.fromRGB(200, 200, 200)
 Status.TextSize = 16
+
+-- Teleport to Center Button
+TPButton.Parent = ScreenGui
+TPButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+TPButton.Position = UDim2.new(0, 10, 0, 10)
+TPButton.Size = UDim2.new(0, 140, 0, 40)
+TPButton.Font = Enum.Font.SourceSansBold
+TPButton.Text = "TP to Center"
+TPButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+TPButton.TextSize = 20
 
 local isBusy = false
 
@@ -79,7 +92,7 @@ local function serverHop()
     if #servers > 0 then
         local serverId = servers[math.random(#servers)]
         Status.Text = "Teleporting..."
-        TeleportService:TeleportToPlaceInstance(PlaceId, serverId, game.Players.LocalPlayer)
+        TeleportService:TeleportToPlaceInstance(PlaceId, serverId, Players.LocalPlayer)
     else
         Status.Text = "No servers found"
     end
@@ -89,4 +102,14 @@ local function serverHop()
     isBusy = false
 end
 
+local function teleportToCenter()
+    local character = Players.LocalPlayer.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        -- Пример координат центра, можно подставить свои
+        local centerPos = Vector3.new(0, 10, 0) 
+        character:MoveTo(centerPos)
+    end
+end
+
 Button.MouseButton1Click:Connect(serverHop)
+TPButton.MouseButton1Click:Connect(teleportToCenter)
