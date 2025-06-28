@@ -103,12 +103,14 @@ local function serverHop()
 end
 
 local function teleportToCenter()
-    local character = Players.LocalPlayer.Character
-    if character and character:FindFirstChild("HumanoidRootPart") then
-        -- Пример координат центра, можно подставить свои
-        local centerPos = Vector3.new(0, 10, 0) 
-        character:MoveTo(centerPos)
-    end
+    local character = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
+    local hrp = character:WaitForChild("HumanoidRootPart")
+
+    -- Пример координат центра (изменить на реальные из игры)
+    local centerPos = Vector3.new(0, 10, 0)
+
+    -- Используем CFrame, чтобы точно задать позицию
+    hrp.CFrame = CFrame.new(centerPos)
 end
 
 Button.MouseButton1Click:Connect(serverHop)
