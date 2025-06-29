@@ -3,7 +3,7 @@ local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
 local boosted = false
-local speedMultiplier = 3 -- увеличиваем скорость
+local speedMultiplier = 2.5 -- скорость 2.5x
 
 local function fakeWalk()
     local char = player.Character
@@ -23,7 +23,7 @@ local function fakeWalk()
 
         local moveDir = humanoid.MoveDirection
         if moveDir.Magnitude > 0 then
-            hrp.CFrame = hrp.CFrame + moveDir.Unit * speedMultiplier * 0.3 -- чуть больше шага
+            hrp.CFrame = hrp.CFrame + moveDir.Unit * speedMultiplier * 0.2
         end
     end)
 end
