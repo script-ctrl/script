@@ -2,6 +2,7 @@ local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
 local PlaceId = game.PlaceId
 
 -- GUI
@@ -107,11 +108,17 @@ local function teleportToCenter()
     local player = Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local hrp = character:WaitForChild("HumanoidRootPart")
+    local goal = CFrame.new(0, 10, 0) -- Измени на нужные координаты
 
-    -- Центр карты — укажи свои координаты
-    local targetCFrame = CFrame.new(0, 10, 0) -- Измени на нужные координаты
-    local tween = TweenService:Create(hrp, TweenInfo.new(0.7, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = targetCFrame})
-    tween:Play()
+    local t0 = tick()
+    local conn
+    conn = RunService.RenderStepped:Connect(function()
+        if tick() - t0 < 2 then
+            hrp.CFrame = goal
+        else
+            conn:Disconnect()
+        end
+    end)
 end
 
 Button.MouseButton1Click:Connect(serverHop)
