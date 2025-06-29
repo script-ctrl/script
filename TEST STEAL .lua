@@ -14,7 +14,7 @@ local points = {
 }
 
 local autoMove = false
-local speed = 8 -- скорость передвижения (возможно до 8–12, тестируй сам)
+local speed = 9 -- скорость передвижения (возможно до 8–12, тестируй сам)
 
 -- Функция "фейкового" передвижения
 local function fakeWalkTo(targetPos)
