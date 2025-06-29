@@ -12,7 +12,7 @@ local points = {
     Vector3.new(-471, -6.6, -100),
 }
 
-local desiredSpeed = 300
+local desiredSpeed = 400 -- ✅ Увеличенная скорость
 local autoMove = false
 local speedLoopRunning = false
 
@@ -20,7 +20,7 @@ local speedLoopRunning = false
 local function hasBrainrot()
     local char = player.Character
     if not char then return false end
-    return char:FindFirstChild("Brainrot") ~= nil -- замени имя если нужно
+    return char:FindFirstChild("Brainrot") ~= nil -- замени имя, если другое
 end
 
 -- Установка скорости
@@ -33,7 +33,7 @@ local function setSpeed()
     end
 end
 
--- Запуск цикла поддержания скорости
+-- Поддержка скорости
 local function startSpeedLoop()
     if speedLoopRunning then return end
     speedLoopRunning = true
@@ -42,7 +42,7 @@ local function startSpeedLoop()
             if hasBrainrot() and autoMove then
                 setSpeed()
             end
-            task.wait(0.025) -- в 2 раза быстрее
+            task.wait(0.05) -- стабильный цикл, как было
         end
     end)
 end
@@ -66,9 +66,9 @@ local function moveToPoint(pos)
     end)
 
     local timer = 0
-    while not reached and timer < 5 do -- уменьшено с 10 до 5 сек
-        task.wait(0.025) -- ускорено с 0.05 до 0.025
-        timer = timer + 0.025
+    while not reached and timer < 10 do
+        task.wait(0.05)
+        timer = timer + 0.05
     end
     return reached
 end
@@ -99,7 +99,7 @@ toggleBtn.MouseButton1Click:Connect(function()
         if char then
             local humanoid = char:FindFirstChildOfClass("Humanoid")
             if humanoid then
-                humanoid.WalkSpeed = 16
+                humanoid.WalkSpeed = 16 -- вернуть дефолт
             end
         end
     end
@@ -112,10 +112,10 @@ task.spawn(function()
             for _, pos in ipairs(points) do
                 if not autoMove then break end
                 moveToPoint(pos)
-                task.wait(0.05) -- пауза между точками уменьшена
+                task.wait(0.1)
             end
         else
-            task.wait(0.1)
+            task.wait(0.2)
         end
     end
 end)
