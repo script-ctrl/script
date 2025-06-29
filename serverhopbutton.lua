@@ -3,6 +3,7 @@ local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local PlaceId = game.PlaceId
 
 -- GUI
@@ -10,8 +11,7 @@ local ScreenGui = Instance.new("ScreenGui")
 local Frame = Instance.new("Frame")
 local Button = Instance.new("TextButton")
 local Status = Instance.new("TextLabel")
-local TPButton = Instance.new("TextButton")
-local TPButtons = {} -- таблица для хранения всех кнопок телепорта
+local ServerTPButton = Instance.new("TextButton")
 
 ScreenGui.Parent = game.CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -42,57 +42,30 @@ Status.Text = "Ready"
 Status.TextColor3 = Color3.fromRGB(200, 200, 200)
 Status.TextSize = 16
 
--- Функция телепорта с Tween + удержание
-local function teleportToPosition(goal)
-    local player = Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local hrp = character:WaitForChild("HumanoidRootPart")
+-- Server Teleport Button via RemoteEvent
+ServerTPButton.Parent = ScreenGui
+ServerTPButton.BackgroundColor3 = Color3.fromRGB(110, 110, 110)
+ServerTPButton.Position = UDim2.new(0, 10, 0, 60)
+ServerTPButton.Size = UDim2.new(0, 160, 0, 40)
+ServerTPButton.Font = Enum.Font.SourceSansBold
+ServerTPButton.Text = "TP to Hand Boos"
+ServerTPButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ServerTPButton.TextSize = 18
 
-    local tween = TweenService:Create(hrp, TweenInfo.new(0.7), {CFrame = goal})
-    tween:Play()
-    tween.Completed:Wait()
+ServerTPButton.MouseButton1Click:Connect(function()
+    local remote = ReplicatedStorage:WaitForChild("3beb6e1c-5f7e-4bca-80b1-4dcdd35e2ce7", 10)
+    if remote then
+        local args = {
+            Base = "Hand Boos"
+        }
+        remote:FireServer(args)
+        print("✅ Remote отправлен:", args)
+    else
+        warn("❌ RemoteEvent не найден!")
+    end
+end)
 
-    local t0 = tick()
-    local conn
-    conn = RunService.RenderStepped:Connect(function()
-        if tick() - t0 < 2 then
-            hrp.CFrame = goal
-        else
-            conn:Disconnect()
-        end
-    end)
-end
-
--- Создание кнопок для каждой позиции
-local coordinates = {
-    {name = "TP 1", pos = CFrame.new(-348, -6.6, 221)},
-    {name = "TP 2", pos = CFrame.new(-348, -6.6, 112)},
-    {name = "TP 3", pos = CFrame.new(-348, -6.6, 6)},
-    {name = "TP 4", pos = CFrame.new(-348, -6.6, -100)},
-    {name = "TP 5", pos = CFrame.new(-471, -6.6, 221)},
-    {name = "TP 6", pos = CFrame.new(-471, -6.6, 112)},
-    {name = "TP 7", pos = CFrame.new(-471, -6.6, 6)},
-    {name = "TP 8", pos = CFrame.new(-471, -6.6, -100)}
-}
-
-for i, data in ipairs(coordinates) do
-    local btn = Instance.new("TextButton")
-    btn.Parent = ScreenGui
-    btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-    btn.Position = UDim2.new(0, 10, 0, 60 + (i - 1) * 45)
-    btn.Size = UDim2.new(0, 140, 0, 40)
-    btn.Font = Enum.Font.SourceSansBold
-    btn.Text = data.name
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.TextSize = 18
-
-    btn.MouseButton1Click:Connect(function()
-        teleportToPosition(data.pos)
-    end)
-
-    table.insert(TPButtons, btn)
-end
-
+-- Server Hop Logic
 local isBusy = false
 
 local function serverHop()
@@ -141,7 +114,7 @@ local function serverHop()
         Status.Text = "No servers found"
     end
 
-    wait(10)
+    task.wait(10)
     Status.Text = "Ready"
     isBusy = false
 end
