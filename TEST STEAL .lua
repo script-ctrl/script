@@ -1,7 +1,9 @@
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
 local player = Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
-local humanoid = char:WaitForChild("Humanoid")
+local hrp = char:WaitForChild("HumanoidRootPart")
 
 -- Точки
 local points = {
@@ -16,36 +18,57 @@ local points = {
 }
 
 -- GUI
-local screenGui = Instance.new("ScreenGui", game.CoreGui)
-screenGui.Name = "FastMoveGui"
+local gui = Instance.new("ScreenGui", game.CoreGui)
+gui.Name = "HardTPGui"
 
--- Функция перемещения с ускорением
-local function fastWalkTo(pos)
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoid = character:WaitForChild("Humanoid")
-    local oldSpeed = humanoid.WalkSpeed
-    humanoid.WalkSpeed = 100 -- ускоряем
+-- Настройки
+local holdTime = 2 -- сколько секунд спамить
+local successRange = 5 -- насколько близко нужно подойти
 
-    humanoid:MoveTo(pos)
-    humanoid.MoveToFinished:Wait(10)
+-- Функция упорного телепорта
+local function hardTeleport(targetPos)
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
 
-    humanoid.WalkSpeed = oldSpeed -- возвращаем назад
+    local start = tick()
+    local reached = false
+
+    local conn
+    conn = RunService.RenderStepped:Connect(function()
+        if not char or not hrp or not hrp.Parent then
+            conn:Disconnect()
+            return
+        end
+
+        local distance = (hrp.Position - targetPos).Magnitude
+        if distance < successRange then
+            reached = true
+            conn:Disconnect()
+            return
+        end
+
+        if tick() - start > holdTime then
+            conn:Disconnect()
+            return
+        end
+
+        char:PivotTo(CFrame.new(targetPos))
+    end)
 end
 
--- Кнопки
+-- Создание кнопок
 for i, tp in ipairs(points) do
     local button = Instance.new("TextButton")
-    button.Parent = screenGui
-    button.Size = UDim2.new(0, 130, 0, 30)
+    button.Parent = gui
+    button.Size = UDim2.new(0, 140, 0, 30)
     button.Position = UDim2.new(0, 10, 0, 10 + (i - 1) * 35)
-    button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     button.TextColor3 = Color3.fromRGB(255, 255, 255)
     button.TextSize = 18
     button.Font = Enum.Font.SourceSansBold
     button.Text = tp.name
 
     button.MouseButton1Click:Connect(function()
-        fastWalkTo(tp.pos)
+        hardTeleport(tp.pos)
     end)
 end
-
