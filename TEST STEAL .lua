@@ -3,9 +3,8 @@ local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
 local boosted = false
-local speedMultiplier = 4 -- во сколько раз быстрее ходишь при включении
+local speedMultiplier = 3 -- увеличиваем скорость
 
--- Функция плавного смещения HumanoidRootPart
 local function fakeWalk()
     local char = player.Character
     if not char then return end
@@ -15,7 +14,6 @@ local function fakeWalk()
     local humanoid = char:FindFirstChildOfClass("Humanoid")
     if not humanoid then return end
 
-    -- Включаем loop для изменения позиции
     local conn
     conn = RunService.Heartbeat:Connect(function()
         if not boosted then
@@ -23,11 +21,9 @@ local function fakeWalk()
             return
         end
 
-        -- Получаем направление движения от управления игрока
         local moveDir = humanoid.MoveDirection
         if moveDir.Magnitude > 0 then
-            -- Смещаем HRP в направлении движения с ускорением
-            hrp.CFrame = hrp.CFrame + moveDir.Unit * speedMultiplier * 0.2
+            hrp.CFrame = hrp.CFrame + moveDir.Unit * speedMultiplier * 0.3 -- чуть больше шага
         end
     end)
 end
@@ -55,7 +51,6 @@ toggleBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- При смене персонажа сбрасываем состояние
 player.CharacterAdded:Connect(function()
     boosted = false
     toggleBtn.Text = "Ускорение: OFF"
