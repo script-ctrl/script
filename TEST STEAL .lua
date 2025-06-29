@@ -25,7 +25,7 @@ screenGui.Name = "StepTPGui"
 local function stepTeleport(targetPos)
     local currentPos = hrp.Position
     local distance = (targetPos - currentPos).Magnitude
-    local stepSize = 6 -- шаг в студиях
+    local stepSize = 10 -- шаг в студиях
     local direction = (targetPos - currentPos).Unit
 
     local steps = math.floor(distance / stepSize)
