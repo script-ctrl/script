@@ -1,6 +1,6 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
-local desiredSpeed = 200 -- скорость при включении
+local desiredSpeed = 150 -- скорость при включении
 
 local boosted = false
 local connection
@@ -30,7 +30,7 @@ local function disableSpeed()
     if char then
         local humanoid = char:FindFirstChildOfClass("Humanoid")
         if humanoid then
-            humanoid.WalkSpeed = 10 -- стандарт
+            humanoid.WalkSpeed = 16 -- стандарт
         end
     end
 end
