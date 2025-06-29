@@ -3,7 +3,7 @@ local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
 local boosted = false
-local speedMultiplier = 3 -- во сколько раз быстрее ходишь при включении
+local speedMultiplier = 4 -- во сколько раз быстрее ходишь при включении
 
 -- Функция плавного смещения HumanoidRootPart
 local function fakeWalk()
