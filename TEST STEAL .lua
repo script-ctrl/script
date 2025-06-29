@@ -1,6 +1,6 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
-local desiredSpeed = 150 -- скорость при включении
+local desiredSpeed = 100 -- ✅ чуть помедленнее, чем раньше (было 200)
 
 local boosted = false
 local connection
@@ -10,10 +10,8 @@ local function enableSpeed()
     local char = player.Character or player.CharacterAdded:Wait()
     local humanoid = char:WaitForChild("Humanoid")
 
-    -- Устанавливаем скорость
     humanoid.WalkSpeed = desiredSpeed
 
-    -- Следим, чтобы не сбрасывалась
     connection = humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
         if boosted and humanoid.WalkSpeed ~= desiredSpeed then
             humanoid.WalkSpeed = desiredSpeed
@@ -30,7 +28,7 @@ local function disableSpeed()
     if char then
         local humanoid = char:FindFirstChildOfClass("Humanoid")
         if humanoid then
-            humanoid.WalkSpeed = 16 -- стандарт
+            humanoid.WalkSpeed = 16
         end
     end
 end
@@ -60,7 +58,7 @@ toggleBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Автовключение при респауне
+-- Включается снова после смерти
 player.CharacterAdded:Connect(function()
     if boosted then
         task.wait(1)
