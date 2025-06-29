@@ -12,46 +12,39 @@ local points = {
     Vector3.new(-471, -6.6, -100),
 }
 
-local desiredSpeed = 400 -- ✅ Увеличенная скорость
+local desiredSpeed = 400
 local autoMove = false
-local speedLoopRunning = false
+local connection -- будет использоваться для слежения за изменением скорости
 
--- Проверка: brainrot в руках?
+-- Проверка на brainrot в руках
 local function hasBrainrot()
     local char = player.Character
     if not char then return false end
-    return char:FindFirstChild("Brainrot") ~= nil -- замени имя, если другое
+    return char:FindFirstChild("Brainrot") ~= nil -- замени имя при необходимости
 end
 
--- Установка скорости
-local function setSpeed()
-    local char = player.Character
-    if not char then return end
-    local humanoid = char:FindFirstChildOfClass("Humanoid")
-    if humanoid and humanoid.WalkSpeed ~= desiredSpeed then
-        humanoid.WalkSpeed = desiredSpeed
+-- Устанавливаем и следим за скоростью
+local function setupSpeedEnforcer()
+    local char = player.Character or player.CharacterAdded:Wait()
+    local humanoid = char:WaitForChild("Humanoid")
+
+    -- Ставим нужную скорость
+    humanoid.WalkSpeed = desiredSpeed
+
+    -- Удаляем прошлую связь если есть
+    if connection then
+        connection:Disconnect()
     end
-end
 
--- Поддержка скорости
-local function startSpeedLoop()
-    if speedLoopRunning then return end
-    speedLoopRunning = true
-    task.spawn(function()
-        while speedLoopRunning do
-            if hasBrainrot() and autoMove then
-                setSpeed()
-            end
-            task.wait(0.05) -- стабильный цикл, как было
+    -- Слушаем любые изменения WalkSpeed
+    connection = humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+        if autoMove and humanoid.WalkSpeed ~= desiredSpeed and hasBrainrot() then
+            humanoid.WalkSpeed = desiredSpeed
         end
     end)
 end
 
-local function stopSpeedLoop()
-    speedLoopRunning = false
-end
-
--- Движение к точке
+-- Движение
 local function moveToPoint(pos)
     local char = player.Character or player.CharacterAdded:Wait()
     local humanoid = char:WaitForChild("Humanoid")
@@ -59,10 +52,10 @@ local function moveToPoint(pos)
     local reached = false
     humanoid:MoveTo(pos)
 
-    local connection
-    connection = humanoid.MoveToFinished:Connect(function(success)
+    local conn
+    conn = humanoid.MoveToFinished:Connect(function(success)
         reached = success
-        connection:Disconnect()
+        conn:Disconnect()
     end)
 
     local timer = 0
@@ -75,7 +68,7 @@ end
 
 -- GUI
 local screenGui = Instance.new("ScreenGui", game.CoreGui)
-screenGui.Name = "StealABrainrotAutoMove"
+screenGui.Name = "BrainrotAutoMove"
 
 local toggleBtn = Instance.new("TextButton")
 toggleBtn.Parent = screenGui
@@ -92,20 +85,20 @@ toggleBtn.MouseButton1Click:Connect(function()
     toggleBtn.Text = autoMove and "Авто движение: ON" or "Авто движение: OFF"
 
     if autoMove then
-        startSpeedLoop()
+        setupSpeedEnforcer()
     else
-        stopSpeedLoop()
+        if connection then connection:Disconnect() end
         local char = player.Character
         if char then
             local humanoid = char:FindFirstChildOfClass("Humanoid")
             if humanoid then
-                humanoid.WalkSpeed = 16 -- вернуть дефолт
+                humanoid.WalkSpeed = 16
             end
         end
     end
 end)
 
--- Цикл движения
+-- Автодвижение
 task.spawn(function()
     while true do
         if autoMove then
@@ -117,5 +110,13 @@ task.spawn(function()
         else
             task.wait(0.2)
         end
+    end
+end)
+
+-- Если персонаж умирает/перерождается — пересоздаём слежку
+player.CharacterAdded:Connect(function()
+    if autoMove then
+        task.wait(1)
+        setupSpeedEnforcer()
     end
 end)
