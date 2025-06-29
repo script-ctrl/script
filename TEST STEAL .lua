@@ -18,7 +18,7 @@ local function moveToPoint(pos)
     local char = player.Character or player.CharacterAdded:Wait()
     local humanoid = char:WaitForChild("Humanoid")
     local oldSpeed = humanoid.WalkSpeed
-    humanoid.WalkSpeed = 200
+    humanoid.WalkSpeed = 300 -- Очень высокая скорость!
 
     local reached = false
     humanoid:MoveTo(pos)
@@ -30,9 +30,9 @@ local function moveToPoint(pos)
     end)
 
     local timer = 0
-    while not reached and timer < 15 do
-        task.wait(0.1)
-        timer = timer + 0.1
+    while not reached and timer < 10 do -- Уменьшаем максимум ожидания
+        task.wait(0.05) -- Меньше задержка для более быстрой проверки
+        timer = timer + 0.05
     end
 
     humanoid.WalkSpeed = oldSpeed
@@ -65,7 +65,7 @@ task.spawn(function()
             for _, pos in ipairs(points) do
                 if not autoMove then break end
                 moveToPoint(pos)
-                task.wait(0.5)
+                task.wait(0.1) -- Очень маленькая пауза между точками
             end
         else
             task.wait(0.2)
