@@ -3,7 +3,7 @@ local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
 local boosted = false
-local speedMultiplier = 2.5 -- скорость 2.5x
+local speedMultiplier = 2.3 -- скорость x2.3
 
 local function fakeWalk()
     local char = player.Character
