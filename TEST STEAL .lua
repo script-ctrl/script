@@ -48,3 +48,4 @@ for i, tp in ipairs(points) do
         fastWalkTo(tp.pos)
     end)
 end
+
