@@ -1,6 +1,6 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
-local desiredSpeed = 100 -- ✅ чуть помедленнее, чем раньше (было 200)
+local desiredSpeed = 60 -- ✅ ещё медленнее
 
 local boosted = false
 local connection
@@ -58,7 +58,7 @@ toggleBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Включается снова после смерти
+-- Перевключение после смерти
 player.CharacterAdded:Connect(function()
     if boosted then
         task.wait(1)
