@@ -30,7 +30,7 @@ local function disableSpeed()
     if char then
         local humanoid = char:FindFirstChildOfClass("Humanoid")
         if humanoid then
-            humanoid.WalkSpeed = 16 -- стандарт
+            humanoid.WalkSpeed = 10 -- стандарт
         end
     end
 end
