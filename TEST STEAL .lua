@@ -16,16 +16,14 @@ local desiredSpeed = 300
 local autoMove = false
 local speedLoopRunning = false
 
--- Проверяем есть ли brainrot в руках (в Character)
+-- Проверка: brainrot в руках?
 local function hasBrainrot()
     local char = player.Character
     if not char then return false end
-    -- Здесь надо точное имя brainrot в руках, например "Brainrot" или "brainrot"
-    -- Подставь правильное имя модели или части
-    return char:FindFirstChild("Brainrot") ~= nil
+    return char:FindFirstChild("Brainrot") ~= nil -- замени имя если нужно
 end
 
--- Устанавливаем скорость
+-- Установка скорости
 local function setSpeed()
     local char = player.Character
     if not char then return end
@@ -35,7 +33,7 @@ local function setSpeed()
     end
 end
 
--- Запускаем цикл поддержания скорости при наличии brainrot в руках
+-- Запуск цикла поддержания скорости
 local function startSpeedLoop()
     if speedLoopRunning then return end
     speedLoopRunning = true
@@ -44,7 +42,7 @@ local function startSpeedLoop()
             if hasBrainrot() and autoMove then
                 setSpeed()
             end
-            task.wait(0.05)
+            task.wait(0.025) -- в 2 раза быстрее
         end
     end)
 end
@@ -68,9 +66,9 @@ local function moveToPoint(pos)
     end)
 
     local timer = 0
-    while not reached and timer < 10 do
-        task.wait(0.05)
-        timer = timer + 0.05
+    while not reached and timer < 5 do -- уменьшено с 10 до 5 сек
+        task.wait(0.025) -- ускорено с 0.05 до 0.025
+        timer = timer + 0.025
     end
     return reached
 end
@@ -97,28 +95,27 @@ toggleBtn.MouseButton1Click:Connect(function()
         startSpeedLoop()
     else
         stopSpeedLoop()
-        -- Вернем скорость к стандартной, чтоб не было проблем
         local char = player.Character
         if char then
             local humanoid = char:FindFirstChildOfClass("Humanoid")
             if humanoid then
-                humanoid.WalkSpeed = 16 -- стандартная скорость в Roblox
+                humanoid.WalkSpeed = 16
             end
         end
     end
 end)
 
--- Автоцикл движения
+-- Цикл движения
 task.spawn(function()
     while true do
         if autoMove then
             for _, pos in ipairs(points) do
                 if not autoMove then break end
                 moveToPoint(pos)
-                task.wait(0.1)
+                task.wait(0.05) -- пауза между точками уменьшена
             end
         else
-            task.wait(0.2)
+            task.wait(0.1)
         end
     end
 end)
