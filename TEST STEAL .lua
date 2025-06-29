@@ -18,7 +18,7 @@ local function moveToPoint(pos)
     local char = player.Character or player.CharacterAdded:Wait()
     local humanoid = char:WaitForChild("Humanoid")
     local oldSpeed = humanoid.WalkSpeed
-    humanoid.WalkSpeed = 100
+    humanoid.WalkSpeed = 200
 
     local reached = false
     humanoid:MoveTo(pos)
