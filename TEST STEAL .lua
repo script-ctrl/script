@@ -7,14 +7,14 @@ local hrp = char:WaitForChild("HumanoidRootPart")
 
 -- Координаты точек
 local points = {
-    {name = "TP 1", pos = CFrame.new(-348, -6.6, 221)},
-    {name = "TP 2", pos = CFrame.new(-348, -6.6, 112)},
-    {name = "TP 3", pos = CFrame.new(-348, -6.6, 6)},
-    {name = "TP 4", pos = CFrame.new(-348, -6.6, -100)},
-    {name = "TP 5", pos = CFrame.new(-471, -6.6, 221)},
-    {name = "TP 6", pos = CFrame.new(-471, -6.6, 112)},
-    {name = "TP 7", pos = CFrame.new(-471, -6.6, 6)},
-    {name = "TP 8", pos = CFrame.new(-471, -6.6, -100)},
+    {name = "TP 1", pos = CFrame.new(-348, -5, 221)},
+    {name = "TP 2", pos = CFrame.new(-348, -5, 112)},
+    {name = "TP 3", pos = CFrame.new(-348, -5, 6)},
+    {name = "TP 4", pos = CFrame.new(-348, -5, -100)},
+    {name = "TP 5", pos = CFrame.new(-471, -5, 221)},
+    {name = "TP 6", pos = CFrame.new(-471, -5, 112)},
+    {name = "TP 7", pos = CFrame.new(-471, -5, 6)},
+    {name = "TP 8", pos = CFrame.new(-471, -5, -100)},
 }
 
 -- GUI
