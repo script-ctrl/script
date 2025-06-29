@@ -37,7 +37,7 @@ for i, tp in ipairs(points) do
         -- Обновляем HumanoidRootPart
         local char = player.Character or player.CharacterAdded:Wait()
         local hrp = char:WaitForChild("HumanoidRootPart")
-        local duration = 1.5 -- удерживать CFrame 1.5 секунды
+        local duration = 6
         local startTime = tick()
 
         local conn
