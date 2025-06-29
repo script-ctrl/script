@@ -1,15 +1,5 @@
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-
 local player = Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
-local hrp = char:WaitForChild("HumanoidRootPart")
-
--- Попытка увеличить SimulationRadius для обхода античита
-pcall(function()
-    sethiddenproperty(player, "SimulationRadius", math.huge)
-    sethiddenproperty(player, "MaximumSimulationRadius", math.huge)
-end)
 
 local points = {
     Vector3.new(-348, -6.6, 221),
@@ -22,22 +12,63 @@ local points = {
     Vector3.new(-471, -6.6, -100),
 }
 
-local function smoothTeleport(targetPos)
-    local stepSize = 2 -- маленький шаг, 2 студии
-    local currentPos = hrp.Position
-    local direction = (targetPos - currentPos).Unit
-    local distance = (targetPos - currentPos).Magnitude
-    local steps = math.floor(distance / stepSize)
+local autoMove = false
 
-    for i = 1, steps do
-        local newPos = currentPos + direction * (i * stepSize)
-        char:PivotTo(CFrame.new(newPos))
-        task.wait(0.01) -- очень короткая задержка
+local function moveToPoint(pos)
+    local char = player.Character or player.CharacterAdded:Wait()
+    local humanoid = char:WaitForChild("Humanoid")
+    local oldSpeed = humanoid.WalkSpeed
+    humanoid.WalkSpeed = 100
+
+    local reached = false
+    humanoid:MoveTo(pos)
+
+    local connection
+    connection = humanoid.MoveToFinished:Connect(function(success)
+        reached = success
+        connection:Disconnect()
+    end)
+
+    local timer = 0
+    while not reached and timer < 15 do
+        task.wait(0.1)
+        timer = timer + 0.1
     end
 
-    -- Финальный шаг
-    char:PivotTo(CFrame.new(targetPos))
+    humanoid.WalkSpeed = oldSpeed
+    return reached
 end
 
--- Пример вызова телепорта для первой точки
-smoothTeleport(points[1])
+-- GUI
+local screenGui = Instance.new("ScreenGui", game.CoreGui)
+screenGui.Name = "AutoMoveGui"
+
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Parent = screenGui
+toggleBtn.Size = UDim2.new(0, 150, 0, 40)
+toggleBtn.Position = UDim2.new(0, 10, 0, 10)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBtn.TextSize = 18
+toggleBtn.Font = Enum.Font.SourceSansBold
+toggleBtn.Text = "Авто движение: OFF"
+
+toggleBtn.MouseButton1Click:Connect(function()
+    autoMove = not autoMove
+    toggleBtn.Text = autoMove and "Авто движение: ON" or "Авто движение: OFF"
+end)
+
+-- Автоцикл движения
+task.spawn(function()
+    while true do
+        if autoMove then
+            for _, pos in ipairs(points) do
+                if not autoMove then break end
+                moveToPoint(pos)
+                task.wait(0.5)
+            end
+        else
+            task.wait(0.2)
+        end
+    end
+end)
