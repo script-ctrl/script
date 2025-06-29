@@ -1,5 +1,4 @@
 local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
@@ -34,10 +33,9 @@ for i, tp in ipairs(points) do
     button.Text = tp.name
 
     button.MouseButton1Click:Connect(function()
-        -- Обновляем HumanoidRootPart
         local char = player.Character or player.CharacterAdded:Wait()
         local hrp = char:WaitForChild("HumanoidRootPart")
-        local duration = 6
+        local duration = 100 -- удержание позиции 100 секунд
         local startTime = tick()
 
         local conn
