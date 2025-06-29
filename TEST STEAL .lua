@@ -1,11 +1,10 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
-local desiredSpeed = 60 -- ✅ ещё медленнее
+local desiredSpeed = 30 -- очень медленно
 
 local boosted = false
 local connection
 
--- Включить скорость
 local function enableSpeed()
     local char = player.Character or player.CharacterAdded:Wait()
     local humanoid = char:WaitForChild("Humanoid")
@@ -19,7 +18,6 @@ local function enableSpeed()
     end)
 end
 
--- Отключить скорость
 local function disableSpeed()
     boosted = false
     if connection then connection:Disconnect() end
@@ -33,7 +31,6 @@ local function disableSpeed()
     end
 end
 
--- GUI
 local screenGui = Instance.new("ScreenGui", game.CoreGui)
 screenGui.Name = "SpeedToggleGUI"
 
@@ -58,7 +55,6 @@ toggleBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Перевключение после смерти
 player.CharacterAdded:Connect(function()
     if boosted then
         task.wait(1)
