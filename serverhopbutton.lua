@@ -1,4 +1,4 @@
-local TeleportService = game:GetService("TeleportService")More actions
+local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -64,7 +64,8 @@ local function teleportToPosition(goal)
 end
 
 -- Создание кнопок для каждой позиции
-local coordinates = { {name = "TP 1", pos = CFrame.new(-348, -6.6, 221)},Add commentMore actions
+local coordinates = {
+    {name = "TP 1", pos = CFrame.new(-348, -6.6, 221)},
     {name = "TP 2", pos = CFrame.new(-348, -6.6, 112)},
     {name = "TP 3", pos = CFrame.new(-348, -6.6, 6)},
     {name = "TP 4", pos = CFrame.new(-348, -6.6, -100)},
@@ -137,7 +138,7 @@ local function serverHop()
         Status.Text = "Teleporting..."
         TeleportService:TeleportToPlaceInstance(PlaceId, serverId, Players.LocalPlayer)
     else
-        Status.Text = "No servers found"More actions
+        Status.Text = "No servers found"
     end
 
     wait(10)
