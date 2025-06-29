@@ -1,4 +1,5 @@
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
 local points = {
@@ -13,51 +14,25 @@ local points = {
 }
 
 local autoMove = false
-local desiredSpeed = 200
+local speed = 6 -- скорость передвижения (возможно до 8–12, тестируй сам)
 
--- Устанавливаем скорость
-local function setSpeed()
-    local char = player.Character
-    if not char then return end
-    local humanoid = char:FindFirstChildOfClass("Humanoid")
-    if humanoid then
-        humanoid.WalkSpeed = desiredSpeed
-    end
-end
-
--- Поддержка скорости
-task.spawn(function()
-    while true do
-        if autoMove then
-            setSpeed()
-        end
-        task.wait(0.05)
-    end
-end)
-
--- Перемещение к точке (ускорено)
-local function moveToPoint(pos)
+-- Функция "фейкового" передвижения
+local function fakeWalkTo(targetPos)
     local char = player.Character or player.CharacterAdded:Wait()
-    local humanoid = char:WaitForChild("Humanoid")
-    humanoid:MoveTo(pos)
+    local hrp = char:WaitForChild("HumanoidRootPart")
 
-    local reached = false
-    local conn
-    conn = humanoid.MoveToFinished:Connect(function(success)
-        reached = success
-        conn:Disconnect()
+    return task.spawn(function()
+        while autoMove and (hrp.Position - targetPos).Magnitude > 2 do
+            local direction = (targetPos - hrp.Position).Unit
+            hrp.CFrame = hrp.CFrame + direction * speed * 0.05 -- маленький сдвиг
+            task.wait(0.01)
+        end
     end)
-
-    local timeout = 0
-    while not reached and timeout < 3 do -- быстрее: максимум 3 секунды на точку
-        task.wait(0.01) -- 🔥 очень быстрый цикл
-        timeout += 0.01
-    end
 end
 
 -- GUI
 local screenGui = Instance.new("ScreenGui", game.CoreGui)
-screenGui.Name = "AutoMoveFast"
+screenGui.Name = "FakeWalkGUI"
 
 local toggleBtn = Instance.new("TextButton")
 toggleBtn.Parent = screenGui
@@ -72,28 +47,16 @@ toggleBtn.Text = "Авто движение: OFF"
 toggleBtn.MouseButton1Click:Connect(function()
     autoMove = not autoMove
     toggleBtn.Text = autoMove and "Авто движение: ON" or "Авто движение: OFF"
-
-    if autoMove then
-        setSpeed()
-    else
-        local char = player.Character
-        if char then
-            local humanoid = char:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                humanoid.WalkSpeed = 16
-            end
-        end
-    end
 end)
 
--- Максимально быстрый цикл
+-- Главный цикл
 task.spawn(function()
     while true do
         if autoMove then
             for _, pos in ipairs(points) do
                 if not autoMove then break end
-                moveToPoint(pos)
-                task.wait(0.01) -- 🔁 почти моментальный переход к следующей точке
+                fakeWalkTo(pos)
+                task.wait(0.2)
             end
         else
             task.wait(0.1)
