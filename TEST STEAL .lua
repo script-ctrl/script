@@ -13,13 +13,22 @@ local points = {
 }
 
 local autoMove = false
+local desiredSpeed = 300
+
+local function setSpeed()
+    local char = player.Character
+    if not char then return end
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if humanoid and humanoid.WalkSpeed ~= desiredSpeed then
+        humanoid.WalkSpeed = desiredSpeed
+    end
+end
 
 local function moveToPoint(pos)
     local char = player.Character or player.CharacterAdded:Wait()
     local humanoid = char:WaitForChild("Humanoid")
-    local oldSpeed = humanoid.WalkSpeed
-    humanoid.WalkSpeed = 300 -- Очень высокая скорость!
 
+    -- Не меняем здесь скорость — она поддерживается циклом setSpeed()
     local reached = false
     humanoid:MoveTo(pos)
 
@@ -30,12 +39,10 @@ local function moveToPoint(pos)
     end)
 
     local timer = 0
-    while not reached and timer < 10 do -- Уменьшаем максимум ожидания
-        task.wait(0.05) -- Меньше задержка для более быстрой проверки
+    while not reached and timer < 10 do
+        task.wait(0.05)
         timer = timer + 0.05
     end
-
-    humanoid.WalkSpeed = oldSpeed
     return reached
 end
 
@@ -58,6 +65,16 @@ toggleBtn.MouseButton1Click:Connect(function()
     toggleBtn.Text = autoMove and "Авто движение: ON" or "Авто движение: OFF"
 end)
 
+-- Цикл поддержания скорости
+task.spawn(function()
+    while true do
+        if autoMove then
+            setSpeed()
+        end
+        task.wait(0.1)
+    end
+end)
+
 -- Автоцикл движения
 task.spawn(function()
     while true do
@@ -65,7 +82,7 @@ task.spawn(function()
             for _, pos in ipairs(points) do
                 if not autoMove then break end
                 moveToPoint(pos)
-                task.wait(0.1) -- Очень маленькая пауза между точками
+                task.wait(0.1)
             end
         else
             task.wait(0.2)
