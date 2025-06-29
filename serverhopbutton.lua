@@ -11,6 +11,7 @@ local Frame = Instance.new("Frame")
 local Button = Instance.new("TextButton")
 local Status = Instance.new("TextLabel")
 local TPButton = Instance.new("TextButton")
+local TPButtons = {} -- таблица для хранения всех кнопок телепорта
 
 ScreenGui.Parent = game.CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -41,15 +42,56 @@ Status.Text = "Ready"
 Status.TextColor3 = Color3.fromRGB(200, 200, 200)
 Status.TextSize = 16
 
--- Teleport to Center Button
-TPButton.Parent = ScreenGui
-TPButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-TPButton.Position = UDim2.new(0, 10, 0, 10)
-TPButton.Size = UDim2.new(0, 140, 0, 40)
-TPButton.Font = Enum.Font.SourceSansBold
-TPButton.Text = "TP to Center"
-TPButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-TPButton.TextSize = 20
+-- Функция телепорта с Tween + удержание
+local function teleportToPosition(goal)
+    local player = Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local hrp = character:WaitForChild("HumanoidRootPart")
+
+    local tween = TweenService:Create(hrp, TweenInfo.new(0.7), {CFrame = goal})
+    tween:Play()
+    tween.Completed:Wait()
+
+    local t0 = tick()
+    local conn
+    conn = RunService.RenderStepped:Connect(function()
+        if tick() - t0 < 2 then
+            hrp.CFrame = goal
+        else
+            conn:Disconnect()
+        end
+    end)
+end
+
+-- Создание кнопок для каждой позиции
+local coordinates = {
+    {name = "TP 1", pos = CFrame.new(-348, -5, 221)},
+    {name = "TP 2", pos = CFrame.new(-348, -5, 112)},
+    {name = "TP 3", pos = CFrame.new(-348, -5, 6)},
+    {name = "TP 4", pos = CFrame.new(-348, -5, -100)},
+    {name = "TP 5", pos = CFrame.new(-471, -5, 221)},
+    {name = "TP 6", pos = CFrame.new(-471, -5, 112)},
+    {name = "TP 7", pos = CFrame.new(-471, -5, 6)},
+    {name = "TP 8", pos = CFrame.new(-471, -5, -100)}
+}
+
+for i, data in ipairs(coordinates) do
+    local btn = Instance.new("TextButton")
+    btn.Parent = ScreenGui
+    btn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    btn.Position = UDim2.new(0, 10, 0, 60 + (i - 1) * 45)
+    btn.Size = UDim2.new(0, 140, 0, 40)
+    btn.Font = Enum.Font.SourceSansBold
+    btn.Text = data.name
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.TextSize = 18
+
+    btn.MouseButton1Click:Connect(function()
+        teleportToPosition(data.pos)
+    end)
+
+    table.insert(TPButtons, btn)
+end
 
 local isBusy = false
 
@@ -104,22 +146,4 @@ local function serverHop()
     isBusy = false
 end
 
-local function teleportToCenter()
-    local player = Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local hrp = character:WaitForChild("HumanoidRootPart")
-    local goal = CFrame.new(0, 10, 0) -- Измени на нужные координаты
-
-    local t0 = tick()
-    local conn
-    conn = RunService.RenderStepped:Connect(function()
-        if tick() - t0 < 2 then
-            hrp.CFrame = goal
-        else
-            conn:Disconnect()
-        end
-    end)
-end
-
 Button.MouseButton1Click:Connect(serverHop)
-TPButton.MouseButton1Click:Connect(teleportToCenter)
