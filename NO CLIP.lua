@@ -1,35 +1,45 @@
-local ScreenGui = Instance.new("ScreenGui")
-local Button = Instance.new("TextButton")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 
-ScreenGui.Parent = game.CoreGui
-ScreenGui.Name = "NoclipGUI"
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
 
-Button.Parent = ScreenGui
-Button.Size = UDim2.new(0, 150, 0, 40)
-Button.Position = UDim2.new(0, 20, 0, 100)
-Button.Text = "Noclip: OFF"
-Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-Button.TextColor3 = Color3.new(1, 1, 1)
-Button.Font = Enum.Font.SourceSansBold
-Button.TextSize = 20
-Button.BorderSizePixel = 2
+local positions = {
+    {name = "TP 1", pos = Vector3.new(-525, -4.8, -100)},
+    {name = "TP 2", pos = Vector3.new(-525, -4.8, -6)},
+    {name = "TP 3", pos = Vector3.new(-525, -4.8, 113)},
+    {name = "TP 4", pos = Vector3.new(-525, -4.8, 220)},
+    {name = "TP 5", pos = Vector3.new(-293, -4.8, -100)},
+    {name = "TP 6", pos = Vector3.new(-293, -4.8, -6)},
+    {name = "TP 7", pos = Vector3.new(-293, -4.8, 113)},
+    {name = "TP 8", pos = Vector3.new(-293, -4.8, -100)},
+}
 
--- Переменные
-local noclip = false
-
--- Включение/выключение Noclip
-Button.MouseButton1Click:Connect(function()
-    noclip = not noclip
-    Button.Text = "Noclip: " .. (noclip and "ON" or "OFF")
-end)
-
--- Noclip логика
-game:GetService("RunService").Stepped:Connect(function()
-    if noclip and game.Players.LocalPlayer.Character then
-        for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-            if v:IsA("BasePart") and v.CanCollide then
-                v.CanCollide = false
-            end
-        end
+local function tweenTeleport(targetPos)
+    local TweenService = game:GetService("TweenService")
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local hrp = LocalPlayer.Character.HumanoidRootPart
+        local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Linear) -- 1 секунда плавного перемещения
+        local tween = TweenService:Create(hrp, tweenInfo, {CFrame = CFrame.new(targetPos)})
+        tween:Play()
     end
-end)
+end
+
+for i, data in ipairs(positions) do
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0, 120, 0, 30)
+    button.Position = UDim2.new(0, 20, 0, 30 + (i - 1) * 35)
+    button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.Text = data.name
+    button.Font = Enum.Font.SourceSansBold
+    button.TextSize = 16
+    button.Parent = ScreenGui
+
+    button.MouseButton1Click:Connect(function()
+        tweenTeleport(data.pos)
+    end)
+end
+
+print("Все TP кнопки загружены")
