@@ -3,10 +3,43 @@ local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
 local noclipEnabled = false
+local moveSpeed = 2 -- скорость смещения (можно увеличить)
 
--- Создаем GUI
+local function noclipMove()
+    local char = player.Character
+    if not char then return end
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    for _, part in pairs(char:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = false
+        end
+    end
+
+    local conn
+    conn = RunService.Heartbeat:Connect(function()
+        if not noclipEnabled then
+            conn:Disconnect()
+            return
+        end
+
+        local moveDir = Vector3.new()
+        -- Управление WASD для ноклипа (можно расширить)
+        local UserInputService = game:GetService("UserInputService")
+        if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveDir = moveDir + hrp.CFrame.LookVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveDir = moveDir - hrp.CFrame.LookVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveDir = moveDir - hrp.CFrame.RightVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveDir = moveDir + hrp.CFrame.RightVector end
+
+        if moveDir.Magnitude > 0 then
+            hrp.CFrame = hrp.CFrame + moveDir.Unit * moveSpeed * 0.2
+        end
+    end)
+end
+
+-- GUI
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "UltraNoclipGui"
 screenGui.Parent = game.CoreGui
 
 local toggleBtn = Instance.new("TextButton")
@@ -16,52 +49,16 @@ toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 100)
 toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 toggleBtn.Font = Enum.Font.SourceSansBold
 toggleBtn.TextSize = 18
-toggleBtn.Text = "Ultra Noclip: OFF"
+toggleBtn.Text = "Noclip: OFF"
 toggleBtn.Parent = screenGui
 
--- Функция ноклипа
-local function ultraHardcoreNoclip()
-    local character = player.Character
-    if not character then return end
-    for _, part in pairs(character:GetDescendants()) do
-        if part:IsA("BasePart") then
-            pcall(function()
-                part.CanCollide = false
-                part.Massless = true
-                part.CustomPhysicalProperties = PhysicalProperties.new(0, 0, 0, 0, 0)
-                part.Velocity = Vector3.new(0, 30, 0)
-                part.RotVelocity = Vector3.new(0, 0, 0)
-                part.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
-                part.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
-                part:SetNetworkOwner(nil)
-                part.CFrame = part.CFrame + Vector3.new(0, 5, 0)
-            end)
-        end
-    end
-end
-
--- Подключения к циклам
-RunService.Stepped:Connect(function()
-    if noclipEnabled then ultraHardcoreNoclip() end
-end)
-
-RunService.Heartbeat:Connect(function()
-    if noclipEnabled then ultraHardcoreNoclip() end
-end)
-
-RunService.RenderStepped:Connect(function()
-    if noclipEnabled then ultraHardcoreNoclip() end
-end)
-
-spawn(function()
-    while true do
-        if noclipEnabled then ultraHardcoreNoclip() end
-        task.wait(0.005)
-    end
-end)
-
--- Обработчик кнопки
 toggleBtn.MouseButton1Click:Connect(function()
     noclipEnabled = not noclipEnabled
-    toggleBtn.Text = noclipEnabled and "Ultra Noclip: ON" or "Ultra Noclip: OFF"
+    toggleBtn.Text = noclipEnabled and "Noclip: ON" or "Noclip: OFF"
+    if noclipEnabled then noclipMove() end
+end)
+
+player.CharacterAdded:Connect(function()
+    noclipEnabled = false
+    toggleBtn.Text = "Noclip: OFF"
 end)
