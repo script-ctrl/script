@@ -1,64 +1,32 @@
+-- TP GUI для Fluxus - Steal a Brainrot
+-- Телепортирует к координатам (-348, -6.6, 221)
+
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local player = Players.LocalPlayer
-
-local noclipEnabled = false
-local moveSpeed = 1 -- скорость смещения (можно увеличить)
-
-local function noclipMove()
-    local char = player.Character
-    if not char then return end
-    local hrp = char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-
-    for _, part in pairs(char:GetDescendants()) do
-        if part:IsA("BasePart") then
-            part.CanCollide = false
-        end
-    end
-
-    local conn
-    conn = RunService.Heartbeat:Connect(function()
-        if not noclipEnabled then
-            conn:Disconnect()
-            return
-        end
-
-        local moveDir = Vector3.new()
-        -- Управление WASD для ноклипа (можно расширить)
-        local UserInputService = game:GetService("UserInputService")
-        if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveDir = moveDir + hrp.CFrame.LookVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveDir = moveDir - hrp.CFrame.LookVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveDir = moveDir - hrp.CFrame.RightVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveDir = moveDir + hrp.CFrame.RightVector end
-
-        if moveDir.Magnitude > 0 then
-            hrp.CFrame = hrp.CFrame + moveDir.Unit * moveSpeed * 0.2
-        end
-    end)
-end
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 
 -- GUI
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = game.CoreGui
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+local Button = Instance.new("TextButton")
 
-local toggleBtn = Instance.new("TextButton")
-toggleBtn.Size = UDim2.new(0, 160, 0, 40)
-toggleBtn.Position = UDim2.new(0, 20, 0, 60)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 100)
-toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleBtn.Font = Enum.Font.SourceSansBold
-toggleBtn.TextSize = 18
-toggleBtn.Text = "Noclip: OFF"
-toggleBtn.Parent = screenGui
+Button.Size = UDim2.new(0, 120, 0, 40)
+Button.Position = UDim2.new(0, 20, 0, 100)
+Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+Button.Text = "TP to Point"
+Button.Font = Enum.Font.SourceSansBold
+Button.TextSize = 18
+Button.Parent = ScreenGui
 
-toggleBtn.MouseButton1Click:Connect(function()
-    noclipEnabled = not noclipEnabled
-    toggleBtn.Text = noclipEnabled and "Noclip: ON" or "Noclip: OFF"
-    if noclipEnabled then noclipMove() end
+-- Координаты
+local targetPosition = Vector3.new(-348, -6.6, 221)
+
+-- Телепорт при нажатии
+Button.MouseButton1Click:Connect(function()
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(targetPosition)
+    end
 end)
 
-player.CharacterAdded:Connect(function()
-    noclipEnabled = false
-    toggleBtn.Text = "Noclip: OFF"
-end)
+print("GUI телепорт загружен.")
