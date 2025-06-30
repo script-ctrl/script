@@ -4,7 +4,7 @@ local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 local noclipEnabled = false
-local speedBoost = 2.3 -- множитель скорости
+local speedBoost = 2.3
 local defaultWalkSpeed = 16
 
 -- GUI
@@ -22,29 +22,52 @@ toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 100)
 toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 toggleBtn.Parent = screenGui
 
-toggleBtn.MouseButton1Click:Connect(function()
-    noclipEnabled = not noclipEnabled
-    toggleBtn.Text = noclipEnabled and "Noclip + Boost: ON" or "Noclip + Boost: OFF"
-
-    local character = player.Character
-    if character then
-        local humanoid = character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid.WalkSpeed = noclipEnabled and defaultWalkSpeed * speedBoost or defaultWalkSpeed
-        end
+local function setWalkSpeed(enable)
+    local char = player.Character
+    if not char then return end
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid.WalkSpeed = enable and defaultWalkSpeed * speedBoost or defaultWalkSpeed
     end
-end)
+end
 
--- Функция для отключения коллизий
 local function noclip()
-    local character = player.Character
-    if character and noclipEnabled then
-        for _, part in pairs(character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = false
-            end
+    local char = player.Character
+    if not char then return end
+    for _, part in pairs(char:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = false
         end
     end
 end
 
-RunService.Stepped:Connect(noclip)
+toggleBtn.MouseButton1Click:Connect(function()
+    noclipEnabled = not noclipEnabled
+    toggleBtn.Text = noclipEnabled and "Noclip + Boost: ON" or "Noclip + Boost: OFF"
+    setWalkSpeed(noclipEnabled)
+end)
+
+RunService.Stepped:Connect(function()
+    if noclipEnabled then
+        noclip()
+    end
+end)
+
+-- Перезапуск настроек при спавне персонажа
+player.CharacterAdded:Connect(function(char)
+    wait(1) -- подождать загрузку персонажа
+    if noclipEnabled then
+        noclip()
+        setWalkSpeed(true)
+    end
+end)
+
+-- Переключение ноклипа по клавише N
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.N then
+        noclipEnabled = not noclipEnabled
+        toggleBtn.Text = noclipEnabled and "Noclip + Boost: ON" or "Noclip + Boost: OFF"
+        setWalkSpeed(noclipEnabled)
+    end
+end)
