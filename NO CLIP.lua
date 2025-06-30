@@ -28,7 +28,7 @@ end
 
 for i, data in ipairs(positions) do
     local button = Instance.new("TextButton")
-    button.Size = UDim2.new(0, 120, 0, 30)
+    button.Size = UDim2.new(0, 120, 0, 30)                              
     button.Position = UDim2.new(0, 20, 0, 30 + (i - 1) * 35)
     button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     button.TextColor3 = Color3.fromRGB(255, 255, 255)
