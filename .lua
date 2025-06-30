@@ -33,7 +33,18 @@ Button.MouseButton1Click:Connect(function()
     Button.Text = "Noclip: " .. (noclipEnabled and "ON" or "OFF")
 end)
 
--- Загрузка SimpleSpy
-spawn(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/exxtremestuffs/SimpleSpySource/master/SimpleSpy.lua"))()
+local mt = getrawmetatable(game)
+setreadonly(mt, false)
+local old = mt.namecall
+
+mt.namecall = newcclosure(function(self, ...)
+    local method = getnamecallmethod()
+    local args = {...}
+    if method == "FireServer" or method == "InvokeServer" then
+        print("🛰️ Remote:", self:GetFullName())
+        print("📦 Args:", unpack(args))
+    end
+    return old(self, ...)
 end)
+
+print("✅ Мини-шпион активирован.")
