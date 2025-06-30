@@ -1,40 +1,48 @@
--- TP GUI для Fluxus - Steal a Brainrot
--- 8 кнопок с телепортами
-
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+local RunService = game:GetService("RunService")
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local player = Players.LocalPlayer
 
-local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+local screenGui = Instance.new("ScreenGui", game.CoreGui)
+local grabButton = Instance.new("TextButton", screenGui)
 
-local positions = {
-    {name = "TP 1", pos = Vector3.new(-525, -4.8, -100)},
-    {name = "TP 2", pos = Vector3.new(-525, -4.8, -6)},
-    {name = "TP 3", pos = Vector3.new(-525, -4.8, 113)},
-    {name = "TP 4", pos = Vector3.new(-525, -4.8, 220)},
-    {name = "TP 5", pos = Vector3.new(-293, -4.8, -100)},
-    {name = "TP 6", pos = Vector3.new(-293, -4.8, -6)},
-    {name = "TP 7", pos = Vector3.new(-293, -4.8, 113)},
-    {name = "TP 8", pos = Vector3.new(-293, -4.8, -100)},
-}
+grabButton.Size = UDim2.new(0, 160, 0, 40)
+grabButton.Position = UDim2.new(0, 20, 0, 210)
+grabButton.Text = "Зажать E (Brainrot)"
+grabButton.Font = Enum.Font.SourceSansBold
+grabButton.TextSize = 18
+grabButton.BackgroundColor3 = Color3.fromRGB(100, 60, 60)
+grabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 
-for i, data in ipairs(positions) do
-    local button = Instance.new("TextButton")
-    button.Size = UDim2.new(0, 120, 0, 30)
-    button.Position = UDim2.new(0, 20, 0, 30 + (i - 1) * 35)
-    button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    button.Text = data.name
-    button.Font = Enum.Font.SourceSansBold
-    button.TextSize = 16
-    button.Parent = ScreenGui
+local holding = false
+local remoteName = "INTERACT_REMOTE_EVENT"
+local remote = nil
 
-    button.MouseButton1Click:Connect(function()
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(data.pos)
-        end
-    end)
+-- Поиск RemoteEvent
+local function findRemote()
+    remote = replicatedStorage:FindFirstChild(remoteName, true)
 end
+findRemote()
 
-print("Все TP кнопки загружены")
+-- Кнопка on/off
+grabButton.MouseButton1Click:Connect(function()
+    holding = not holding
+    grabButton.Text = holding and "Отпустить E" or "Зажать E (Brainrot)"
+end)
+
+-- Цикл имитации зажатия
+task.spawn(function()
+    while true do
+        if holding then
+            if not remote then
+                findRemote()
+            end
+            if remote then
+                pcall(function()
+                    remote:FireServer()
+                end)
+            end
+        end
+        task.wait(0.1) -- задержка между вызовами (можно 0.05)
+    end
+end)
