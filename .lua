@@ -50,7 +50,7 @@ ScreenGui.Name = "WallBypassGUI"
 
 Button.Parent = ScreenGui
 Button.Size = UDim2.new(0, 180, 0, 40)
-Button.Position = UDim2.new(0, 20, 0, 100)
+Button.Position = UDim2.new(0, 40, 0, 100)
 Button.Text = "Пройти сквозь стену"
 Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 Button.TextColor3 = Color3.new(1, 1, 1)
