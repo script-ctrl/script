@@ -1,37 +1,35 @@
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
+local ScreenGui = Instance.new("ScreenGui")
+local Button = Instance.new("TextButton")
 
-local player = Players.LocalPlayer
+ScreenGui.Parent = game.CoreGui
+ScreenGui.Name = "NoclipGUI"
+
+Button.Parent = ScreenGui
+Button.Size = UDim2.new(0, 150, 0, 40)
+Button.Position = UDim2.new(0, 20, 0, 100)
+Button.Text = "Noclip: OFF"
+Button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+Button.TextColor3 = Color3.new(1, 1, 1)
+Button.Font = Enum.Font.SourceSansBold
+Button.TextSize = 20
+Button.BorderSizePixel = 2
+
+-- Переменные
 local noclip = false
 
--- Создаём GUI
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = player.PlayerGui
-
-local button = Instance.new("TextButton")
-button.Parent = screenGui
-button.Size = UDim2.new(0, 160, 0, 40)
-button.Position = UDim2.new(0, 20, 1, -60) -- Левый нижний угол
-button.AnchorPoint = Vector2.new(0, 1)
-button.Text = "Включить ноуклип"
-button.Font = Enum.Font.SourceSansBold
-button.TextSize = 18
-button.BackgroundColor3 = Color3.fromRGB(60, 100, 60)
-button.TextColor3 = Color3.fromRGB(255, 255, 255)
-
-button.MouseButton1Click:Connect(function()
+-- Включение/выключение Noclip
+Button.MouseButton1Click:Connect(function()
     noclip = not noclip
-    button.Text = noclip and "Выключить ноуклип" or "Включить ноуклип"
+    Button.Text = "Noclip: " .. (noclip and "ON" or "OFF")
 end)
 
-RunService.Heartbeat:Connect(function()
-    local character = player.Character
-    if character then
-        for _, v in pairs(character:GetDescendants()) do
-            if v:IsA("BasePart") then
-                v.CanCollide = not noclip and true or false
+-- Noclip логика
+game:GetService("RunService").Stepped:Connect(function()
+    if noclip and game.Players.LocalPlayer.Character then
+        for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+            if v:IsA("BasePart") and v.CanCollide then
+                v.CanCollide = false
             end
         end
     end
 end)
-    
