@@ -2,58 +2,66 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
-local noclipEnabled = true
+local noclipEnabled = false
 
+-- Создаем GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "UltraNoclipGui"
+screenGui.Parent = game.CoreGui
+
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0, 160, 0, 40)
+toggleBtn.Position = UDim2.new(0, 20, 0, 60)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 100)
+toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBtn.Font = Enum.Font.SourceSansBold
+toggleBtn.TextSize = 18
+toggleBtn.Text = "Ultra Noclip: OFF"
+toggleBtn.Parent = screenGui
+
+-- Функция ноклипа
 local function ultraHardcoreNoclip()
     local character = player.Character
     if not character then return end
     for _, part in pairs(character:GetDescendants()) do
         if part:IsA("BasePart") then
             pcall(function()
-                -- Полное отключение коллизии
                 part.CanCollide = false
-                -- Уменьшаем массу
                 part.Massless = true
-                -- Обнуляем физические свойства
                 part.CustomPhysicalProperties = PhysicalProperties.new(0, 0, 0, 0, 0)
-                -- Обнуляем скорости
                 part.Velocity = Vector3.new(0, 30, 0)
                 part.RotVelocity = Vector3.new(0, 0, 0)
                 part.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
                 part.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
-                -- Отключаем сетевой контроль клиента (передаём серверу)
                 part:SetNetworkOwner(nil)
-                -- Принудительно ставим позицию (на всякий случай)
                 part.CFrame = part.CFrame + Vector3.new(0, 5, 0)
             end)
         end
     end
 end
 
--- Массив событий и таймеров для максимальной частоты вызова
-local connections = {}
-
-connections[#connections + 1] = RunService.Stepped:Connect(function()
+-- Подключения к циклам
+RunService.Stepped:Connect(function()
     if noclipEnabled then ultraHardcoreNoclip() end
 end)
 
-connections[#connections + 1] = RunService.Heartbeat:Connect(function()
+RunService.Heartbeat:Connect(function()
     if noclipEnabled then ultraHardcoreNoclip() end
 end)
 
-connections[#connections + 1] = RunService.RenderStepped:Connect(function()
+RunService.RenderStepped:Connect(function()
     if noclipEnabled then ultraHardcoreNoclip() end
 end)
 
 spawn(function()
-    while noclipEnabled do
-        ultraHardcoreNoclip()
-        task.wait(0.005) -- максимум частоты
+    while true do
+        if noclipEnabled then ultraHardcoreNoclip() end
+        task.wait(0.005)
     end
 end)
 
-print("Ultra Hardcore Noclip is running! Stay safe.")
-
--- Чтобы отключить (если нужно), можно вызвать:
--- noclipEnabled = false
--- for _, conn in pairs(connections) do conn:Disconnect() end
+-- Обработчик кнопки
+toggleBtn.MouseButton1Click:Connect(function()
+    noclipEnabled = not noclipEnabled
+    toggleBtn.Text = noclipEnabled and "Ultra Noclip: ON" or "Ultra Noclip: OFF"
+end)
