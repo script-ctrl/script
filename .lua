@@ -1,48 +1,37 @@
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local replicatedStorage = game:GetService("ReplicatedStorage")
-local player = Players.LocalPlayer
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LocalPlayer = Players.LocalPlayer
 
-local screenGui = Instance.new("ScreenGui", game.CoreGui)
-local grabButton = Instance.new("TextButton", screenGui)
-
-grabButton.Size = UDim2.new(0, 160, 0, 40)
-grabButton.Position = UDim2.new(0, 20, 0, 210)
-grabButton.Text = "Зажать E (Brainrot)"
-grabButton.Font = Enum.Font.SourceSansBold
-grabButton.TextSize = 18
-grabButton.BackgroundColor3 = Color3.fromRGB(100, 60, 60)
-grabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-
-local holding = false
 local remoteName = "INTERACT_REMOTE_EVENT"
-local remote = nil
+local remote = ReplicatedStorage:FindFirstChild(remoteName, true)
 
--- Поиск RemoteEvent
-local function findRemote()
-    remote = replicatedStorage:FindFirstChild(remoteName, true)
-end
-findRemote()
+local function getClosestPart()
+    local character = LocalPlayer.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return end
 
--- Кнопка on/off
-grabButton.MouseButton1Click:Connect(function()
-    holding = not holding
-    grabButton.Text = holding and "Отпустить E" or "Зажать E (Brainrot)"
-end)
+    local minDist = math.huge
+    local nearest = nil
 
--- Цикл имитации зажатия
-task.spawn(function()
-    while true do
-        if holding then
-            if not remote then
-                findRemote()
-            end
-            if remote then
-                pcall(function()
-                    remote:FireServer()
-                end)
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("Part") then
+            local dist = (character.HumanoidRootPart.Position - obj.Position).Magnitude
+            if dist < minDist then
+                minDist = dist
+                nearest = obj
             end
         end
-        task.wait(0.1) -- задержка между вызовами (можно 0.05)
+    end
+    return nearest
+end
+
+task.spawn(function()
+    while true do
+        local closest = getClosestPart()
+        if closest and remote then
+            pcall(function()
+                remote:FireServer(closest)
+            end)
+        end
+        task.wait(0.2)
     end
 end)
