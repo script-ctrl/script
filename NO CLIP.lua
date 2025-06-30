@@ -3,7 +3,7 @@ local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
 local noclipEnabled = false
-local moveSpeed = 2 -- скорость смещения (можно увеличить)
+local moveSpeed = 1 -- скорость смещения (можно увеличить)
 
 local function noclipMove()
     local char = player.Character
