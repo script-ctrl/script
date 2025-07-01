@@ -5,7 +5,7 @@ local player = Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
 local hrp = char:WaitForChild("HumanoidRootPart")
 
--- GUI
+-- GUI     
 local ScreenGui = Instance.new("ScreenGui")
 local Button = Instance.new("TextButton")
 
