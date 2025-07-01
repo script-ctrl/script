@@ -1,54 +1,35 @@
--- Noclip переменная
-local noclipEnabled = false
-
--- Создание GUI
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "NoclipSpyGui"
+ScreenGui.Name = "RemoteScannerGUI"
 ScreenGui.Parent = game.CoreGui
 
 local Button = Instance.new("TextButton")
 Button.Parent = ScreenGui
-Button.Size = UDim2.new(0, 160, 0, 40)
+Button.Size = UDim2.new(0, 180, 0, 40)
 Button.Position = UDim2.new(0, 20, 0, 100)
-Button.Text = "Noclip: OFF"
-Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+Button.Text = "🔍 Сканировать Remote'ы"
+Button.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 Button.TextColor3 = Color3.new(1, 1, 1)
 Button.Font = Enum.Font.SourceSansBold
-Button.TextSize = 20
+Button.TextSize = 16
 
--- Noclip логика
-game:GetService("RunService").Stepped:Connect(function()
-    if noclipEnabled and game.Players.LocalPlayer.Character then
-        for _, part in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-            if part:IsA("BasePart") and part.CanCollide then
-                part.CanCollide = false
-            end
+-- 🛰️ Функция сканирования
+local function scanRemotes()
+    print("📡 [Remote Scanner] Начинаю сканирование...")
+
+    local total = 0
+
+    for _, obj in ipairs(game:GetDescendants()) do
+        if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
+            total += 1
+            print("🔧 Найден Remote [" .. obj.ClassName .. "]: " .. obj:GetFullName())
         end
     end
-end)
 
--- Переключение Noclip
-Button.MouseButton1Click:Connect(function()
-    noclipEnabled = not noclipEnabled
-    Button.Text = "Noclip: " .. (noclipEnabled and "ON" or "OFF")
-end)
+    print("✅ Всего найдено Remote'ов: " .. total)
+end
 
-ащита от TeleportService.Reconnect RemoteEvent
+-- 👆 Привязка к кнопке
+Button.MouseButton1Click:Connect(scanRemotes)
 
-local mt = getrawmetatable(game)
-setreadonly(mt, false)
-local old = mt.namecall
-
-mt.namecall = newcclosure(function(self, ...)
-    local method = getnamecallmethod()
-    local args = {...}
-
-    if method == "FireServer" and tostring(self):find("TeleportService.Reconnect") then
-        warn("🚫 Заблокирован вызов: " .. tostring(self))
-        return nil -- блокируем вызов
-    end
-
-    return old(self, ...)
-end)
-
-print("✅ Защита от Reconnect активирована.")
+-- 🕒 Автоскан при запуске
+scanRemotes()
