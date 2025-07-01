@@ -1,35 +1,43 @@
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "RemoteScannerGUI"
-ScreenGui.Parent = game.CoreGui
+-- 🌈 Интерфейс
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local hrp = char:WaitForChild("HumanoidRootPart")
 
+-- GUI
+local ScreenGui = Instance.new("ScreenGui")
 local Button = Instance.new("TextButton")
+
+ScreenGui.Parent = game.CoreGui
+ScreenGui.Name = "WallBypassGUI"
+
 Button.Parent = ScreenGui
 Button.Size = UDim2.new(0, 180, 0, 40)
 Button.Position = UDim2.new(0, 20, 0, 100)
-Button.Text = "🔍 Сканировать Remote'ы"
-Button.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+Button.Text = "Пройти сквозь стену"
+Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 Button.TextColor3 = Color3.new(1, 1, 1)
 Button.Font = Enum.Font.SourceSansBold
-Button.TextSize = 16
+Button.TextSize = 18
+Button.BorderSizePixel = 2
+Button.AutoButtonColor = true
 
--- 🛰️ Функция сканирования
-local function scanRemotes()
-    print("📡 [Remote Scanner] Начинаю сканирование...")
+-- ⚡ Функция телепорта вперёд (на 5 единиц)
+local function teleportForward()
+    local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    if not root then return end
 
-    local total = 0
+    local lookVector = root.CFrame.lookVector
+    local newPosition = root.Position + (lookVector * 5)
 
-    for _, obj in ipairs(game:GetDescendants()) do
-        if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
-            total += 1
-            print("🔧 Найден Remote [" .. obj.ClassName .. "]: " .. obj:GetFullName())
-        end
-    end
-
-    print("✅ Всего найдено Remote'ов: " .. total)
+    local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Linear)
+    local goal = {CFrame = CFrame.new(newPosition)}
+    local tween = TweenService:Create(root, tweenInfo, goal)
+    tween:Play()
 end
 
 -- 👆 Привязка к кнопке
-Button.MouseButton1Click:Connect(scanRemotes)
-
--- 🕒 Автоскан при запуске
-scanRemotes()
+Button.MouseButton1Click:Connect(function()
+    teleportForward()
+end)
