@@ -1,3 +1,20 @@
+local mt = getrawmetatable(game)
+setreadonly(mt, false)
+local old = mt.namecall
+
+mt.namecall = newcclosure(function(self, ...)
+    local method = getnamecallmethod()
+    local args = {...}
+
+    if method == "FireServer" and tostring(self):find("TeleportService.Reconnect") then
+        warn("🚫 Заблокирован вызов: " .. tostring(self))
+        return nil -- блокируем вызов
+    end
+
+    return old(self, ...)
+end)
+
+print("✅ Защита от Reconnect активирована.")
 -- 🌈 Интерфейс
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
