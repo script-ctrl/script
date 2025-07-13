@@ -1,43 +1,16 @@
--- 🌈 Интерфейс
-local TweenService = game:GetService("TweenService")
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
-local hrp = char:WaitForChild("HumanoidRootPart")
+-- Кнопка: За карту
+local button = Instance.new("TextButton")
+button.Parent = screenGui
+button.Size = UDim2.new(0, 100, 0, 30)
+button.Position = UDim2.new(0, 120, 0, 10) -- справа от остальных
+button.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+button.TextColor3 = Color3.fromRGB(255, 255, 255)
+button.TextSize = 18
+button.Font = Enum.Font.SourceSansBold
+button.Text = "⬇ За карту"
 
--- GUI     
-local ScreenGui = Instance.new("ScreenGui")
-local Button = Instance.new("TextButton")
-
-ScreenGui.Parent = game.CoreGui
-ScreenGui.Name = "WallBypassGUI"
-
-Button.Parent = ScreenGui
-Button.Size = UDim2.new(0, 180, 0, 40)
-Button.Position = UDim2.new(0, 20, 0, 100)
-Button.Text = "Пройти сквозь стену"
-Button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Button.TextColor3 = Color3.new(1, 1, 1)
-Button.Font = Enum.Font.SourceSansBold
-Button.TextSize = 18
-Button.BorderSizePixel = 2
-Button.AutoButtonColor = true
-
--- ⚡ Функция телепорта вперёд (на 5 единиц)
-local function teleportForward()
-    local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-    if not root then return end
-
-    local lookVector = root.CFrame.lookVector
-    local newPosition = root.Position + (lookVector * 5)
-
-    local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Linear)
-    local goal = {CFrame = CFrame.new(newPosition)}
-    local tween = TweenService:Create(root, tweenInfo, goal)
-    tween:Play()
-end
-
--- 👆 Привязка к кнопке
-Button.MouseButton1Click:Connect(function()
-    teleportForward()
+button.MouseButton1Click:Connect(function()
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+    hrp.CFrame = CFrame.new(9999, -1000, 9999) -- координаты сильно вне карты
 end)
